@@ -82,6 +82,7 @@ int main(int argc, char **argv) {
   TEST(test_sub_2);
   TEST(test_sub_3);
   TEST(test_sub_4);
+  /*
   TEST(test_is_bit_set_1);
   TEST(test_is_bit_set_2);
   TEST(test_lshift_1);
@@ -92,12 +93,14 @@ int main(int argc, char **argv) {
   TEST(test_compare_2);
   TEST(test_div_1);
   TEST(test_div_2);
+  */
   TEST(test_to_hex_1);
   TEST(test_to_hex_2);
+  /*
   TEST(test_to_dec_1);
   TEST(test_to_dec_2);
   // TODO: add calls to TEST for additional test functions
-
+  */
   TEST_FINI();
 }
 

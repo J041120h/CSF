@@ -15,6 +15,8 @@
 class BigInt {
 private:
   // TODO: add fields
+  bool sign;
+  std::vector<uint64_t>* magnitude;
 
 public:
   //! Default constructor.
@@ -28,7 +30,7 @@ public:
   //!            BigInt value
   //! @param negative if true, the value is negative
   BigInt(uint64_t val, bool negative = false);
-
+  BigInt(std::vector<uint64_t>* val, bool negative = false);
   //! Constructor from an `std::initializer_list` of `uint64_t` values
   //! to initialize the BigInt object's bit string, and (optionally)
   //! a boolean value indicating whether the value is negative.
@@ -182,9 +184,14 @@ public:
   //!
   //! @return the value of this BigInt object in decimal (base-10)
   std::string to_dec() const;
+  
 
 private:
   // TODO: add helper functions
+  static BigInt add_magnitudes(const BigInt &lhs, const BigInt &rhs);
+  static int compare_magnitudes(const BigInt &lhs, const BigInt &rhs);
+  static BigInt subtract_magnitudes(const BigInt &lhs, const BigInt &rhs);
+  void sign_set(bool status);
 };
 
 #endif // BIGINT_H
