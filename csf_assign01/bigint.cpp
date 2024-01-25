@@ -1,8 +1,10 @@
 #include <cassert>
+#include <cstdint>
 #include <cstdio>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <string>
 #include "bigint.h"
 
 
@@ -11,6 +13,7 @@ BigInt::BigInt()
 {
   sign = false;
   magnitude = new std::vector<uint64_t>();
+  magnitude->push_back(uint64_t(0));
 }
 
 BigInt::BigInt(uint64_t val, bool negative)
@@ -60,6 +63,7 @@ BigInt &BigInt::operator=(const BigInt &rhs)
   {
     this->magnitude->push_back(*i);
   }
+  return *this;
 }
 
 bool BigInt::is_negative() const
@@ -129,7 +133,7 @@ BigInt BigInt::add_magnitudes(const BigInt &lhs, const BigInt &rhs)
     result->push_back(1);
   }
 
-  return BigInt(result);
+  return(BigInt(result));
 }
 
 int BigInt::compare_magnitudes(const BigInt &lhs, const BigInt &rhs)
@@ -183,7 +187,8 @@ BigInt BigInt::subtract_magnitudes(const BigInt &lhs, const BigInt &rhs)
     }
     result->push_back(sum);
   }
-  return BigInt(result);
+
+  return(BigInt(result));
 }
 
 void BigInt::sign_set(bool status)
@@ -239,14 +244,99 @@ BigInt BigInt::operator-() const
   return(result);
 }
 
+std::string BigInt::binary(uint64_t number) const
+{
+  std::string result;
+  uint64_t temp = 1;
+  for (int i = 0; i <64; i++)
+  {
+    if ((temp & number) != 0)
+    {
+      result.insert(0,1,'1');
+    }
+    else {
+      result.insert(0,1,'0');
+    }
+    temp = temp<<1;
+  }
+  return result;
+}
+
 bool BigInt::is_bit_set(unsigned n) const
 {
   // TODO: implement
+  std::string result;
+  std::stringstream temp;
+  int size = this->magnitude->size();
+  for(int i = (size-1); i>=0; i--)
+  {
+      temp<< binary(this->get_bits(i));
+  }
+  result = temp.str();
+  int length = result.length();
+
+  if( n > (length-1))
+  {
+    return false;
+  }
+  char check = result.at(length-n-1);
+
+  if (check == '0')
+  {
+    return false;
+  }
+  else {
+    return true;
+  }
 }
 
 BigInt BigInt::operator<<(unsigned n) const
 {
   // TODO: implement
+  if (sign == true)
+  {
+    throw std::invalid_argument("The BigInt is negative"); 
+  }
+  
+  int bit_push = n /64;
+  int dig_push = n %64;
+  std::vector<uint64_t>* result = new std::vector<uint64_t>();
+  uint64_t pre = 0;
+  uint64_t next = 0;
+  uint64_t current = 0;
+
+  for (int i =0; i<bit_push; i++)
+  {
+    result->push_back(uint64_t(0));
+  }
+
+  if (dig_push==0)
+  {
+    for (auto a = magnitude->begin(); a != magnitude->end(); a++)
+    {
+      result->push_back(*a);
+    }
+    return(BigInt(result));
+  }
+
+  int size = this->magnitude->size();
+  for(int i = 0; i<size; i++)
+  {
+    current = get_bits(i);
+    next = current & (((~0UL)<<(64-dig_push)));
+    next = next >> (64-dig_push);
+    current = current << dig_push;
+    current = current ^ pre;
+    result->push_back(current);
+    pre = next;
+  }
+
+  if (next != 0)
+  {
+    result->push_back(next);
+  }
+
+  return(BigInt(result));
 }
 
 BigInt BigInt::operator*(const BigInt &rhs) const
@@ -262,6 +352,38 @@ BigInt BigInt::operator/(const BigInt &rhs) const
 int BigInt::compare(const BigInt &rhs) const
 {
   // TODO: implement
+  if ((sign == false)&&(rhs.sign == true))
+  {
+    return 1;
+  }
+  else if ((sign == true)&&(rhs.sign == false))
+  {
+    return -1;
+  }
+  else if ((sign == false)&&(rhs.sign == false))
+  {
+    int check = compare_magnitudes(*this, rhs);
+    if (check == 1)
+    {
+      return 1;
+    }
+    else if (check == 2)
+    {
+      return -1;
+    }
+  }
+  else {
+    int check = compare_magnitudes(*this, rhs);
+    if (check == 2)
+    {
+      return 1;
+    }
+    else if (check == 1)
+    {
+      return -1;
+    }
+  }
+  return 0;
 }
 
 std::string BigInt::to_hex() const
@@ -286,9 +408,6 @@ std::string BigInt::to_hex() const
     }
   }
   result = temp.str();
-  if (result.empty()) {
-    result = '0';
-  }
   return result;
 }
 

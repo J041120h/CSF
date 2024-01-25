@@ -110,6 +110,7 @@ public:
   //! @param n the bit to test (0 for the least significant bit, etc.)
   //! @return true if bit `n` is set to 1, false if it is set to 0
   bool is_bit_set(unsigned n) const;
+  std::string binary(uint64_t number) const;
 
   //! Left shift by n bits. Note that it is only allowed
   //! to use this operation on non-negative values.
