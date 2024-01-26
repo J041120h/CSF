@@ -88,9 +88,9 @@ int main(int argc, char **argv) {
   TEST(test_lshift_2);
   TEST(test_compare_1);
   TEST(test_compare_2);
-  /*
   TEST(test_mul_1);
   TEST(test_mul_2);
+  /*
   TEST(test_div_1);
   TEST(test_div_2);
   */

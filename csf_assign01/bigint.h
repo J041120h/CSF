@@ -129,8 +129,7 @@ public:
   //!            is the implicit receiver object, i.e., `*this`)
   //! @return the BigInt value representing the product of the operands
   BigInt operator*(const BigInt &rhs) const;
-
-  //! Division operator.
+   //! Division operator.
   //! Note that since BigInt objects represent integers, this
   //! operator should return a quotient value with the largest
   //! magnitude such that the magnitude of the product of the right-hand

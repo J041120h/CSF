@@ -40,14 +40,7 @@ BigInt::BigInt(std::initializer_list<uint64_t> vals, bool negative)
 }
 
 BigInt::BigInt(const BigInt &other)
-  // TODO: initialize member variables
-{
-  this->sign = other.sign;
-  magnitude = new std::vector<uint64_t>();
-  for(auto i = other.magnitude->begin(); i != other.magnitude->end(); ++i)
-  {
-    this->magnitude->push_back(*i);
-  }
+    : sign(other.sign), magnitude(new std::vector<uint64_t>(*other.magnitude)) {
 }
 
 BigInt::~BigInt()
@@ -58,7 +51,11 @@ BigInt::~BigInt()
 BigInt &BigInt::operator=(const BigInt &rhs)
 {
   // TODO: implement
+  if (this == &rhs) {
+    return *this;
+  }
   this->sign = rhs.sign;
+  this->magnitude->clear();
   for(auto i = rhs.magnitude->begin(); i != rhs.magnitude->end(); ++i)
   {
     this->magnitude->push_back(*i);
@@ -342,6 +339,27 @@ BigInt BigInt::operator<<(unsigned n) const
 BigInt BigInt::operator*(const BigInt &rhs) const
 {
   // TODO: implement
+
+  bool result_sign = false;
+  if (this->sign != rhs.sign)
+  {
+    result_sign = true;
+  }
+
+  BigInt result;
+  BigInt temp = *this;
+  temp.sign_set(false);
+  int size = rhs.magnitude->size();
+  for (int i =0; i <size*64; i++)
+  {
+    if (rhs.is_bit_set(i))
+    {
+      result = result + (temp<<i);
+    }
+  }
+  result.sign_set(result_sign);
+  
+  return result;
 }
 
 BigInt BigInt::operator/(const BigInt &rhs) const
