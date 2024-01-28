@@ -59,6 +59,7 @@ void test_div_2(TestObjs *objs);
 void test_to_hex_1(TestObjs *objs);
 void test_to_hex_2(TestObjs *objs);
 void test_to_dec_1(TestObjs *objs);
+void test_to_dec_2(TestObjs *objs);
 // TODO: declare additional test functions
 
 int main(int argc, char **argv) {
@@ -92,14 +93,10 @@ int main(int argc, char **argv) {
   TEST(test_to_hex_1);
   TEST(test_to_hex_2);
   TEST(test_div_1);
-  
   TEST(test_div_2);
-  
-  /*
   TEST(test_to_dec_1);
   TEST(test_to_dec_2);
   // TODO: add calls to TEST for additional test functions
-  */
   TEST_FINI();
 }
 
@@ -583,8 +580,27 @@ void test_to_hex_2(TestObjs *) {
 }
 
 void test_to_dec_1(TestObjs *objs) {
-  // some basic tests for to_dec()
 
+  //test the % operator
+  std::string resulta = objs->nine % objs->three;
+  ASSERT(resulta == "0");
+
+  std::string resultb = objs->nine % objs->two;
+  ASSERT(resultb == "1");
+
+  std::string resultc = objs->negative_nine % objs->three;
+  ASSERT(resultc == "0");
+
+  std::string resultd = objs->negative_nine % objs->two;
+  ASSERT(resultd == "1");
+
+  std::string resulte = objs->two_pow_64%objs->two;
+  ASSERT(resulte == "0");
+
+  std::string resultf = (objs->two_pow_64+objs->one)%objs->two;
+  ASSERT(resultf == "1");
+
+  // some basic tests for to_dec()
   std::string result1 = objs->zero.to_dec();
   ASSERT("0" == result1);
 

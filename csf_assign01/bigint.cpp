@@ -78,7 +78,7 @@ const std::vector<uint64_t> &BigInt::get_bit_vector() const {
 uint64_t BigInt::get_bits(unsigned index) const
 {
   // TODO: implement
-  int size = magnitude->size();
+  unsigned int size = magnitude->size();
   if (size < (index+1))
   {
     return uint64_t(0);
@@ -287,7 +287,7 @@ bool BigInt::is_bit_set(unsigned n) const
   result = temp.str();
   int length = result.length();
 
-  if( n > (length-1))
+  if( n > static_cast<unsigned int>(length-1))
   {
     return false;
   }
@@ -508,5 +508,53 @@ std::string BigInt::to_hex() const
 std::string BigInt::to_dec() const
 {
   // TODO: implement
+  std::string result;
+  BigInt denominator = *this;
+  denominator.sign_set(false);
+  BigInt divisor(uint64_t(1000));
+  BigInt zero(uint64_t(0));
+  if (denominator.compare(zero)==0)
+  {
+    result.push_back('0');
+    return result;
+  }
+
+  while (denominator.compare(zero)!=0)
+  {
+    std::string reminder = denominator%divisor;
+    int length = (3-reminder.length());
+    result.insert(0,reminder);
+    for (int a =0; a<length; a++)
+    {
+      result.insert(0,"0");
+    }
+    denominator = denominator/ divisor;
+  }
+
+  size_t first_not_zero = result.find_first_not_of('0');
+  if (first_not_zero != std::string::npos) 
+  {
+    result.erase(0, first_not_zero);
+  } 
+
+  if (this->sign == true)
+  {
+    result.insert(0,"-");
+  }
+
+  return result;
+}
+
+std::string BigInt::operator%(const BigInt &rhs) const
+{
+  BigInt denominator = *this;
+  denominator.sign_set(false);
+  BigInt divisor = rhs;
+  divisor.sign_set(false);
+  BigInt result = denominator/ divisor;
+  BigInt product = result * divisor;
+  result = denominator-product;
+  uint64_t end = result.get_bits(0);
+  return (std::to_string(end));
 }
 
