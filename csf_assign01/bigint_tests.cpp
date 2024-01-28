@@ -59,7 +59,6 @@ void test_div_2(TestObjs *objs);
 void test_to_hex_1(TestObjs *objs);
 void test_to_hex_2(TestObjs *objs);
 void test_to_dec_1(TestObjs *objs);
-void test_to_dec_2(TestObjs *objs);
 // TODO: declare additional test functions
 
 int main(int argc, char **argv) {
@@ -90,12 +89,12 @@ int main(int argc, char **argv) {
   TEST(test_compare_2);
   TEST(test_mul_1);
   TEST(test_mul_2);
-  /*
-  TEST(test_div_1);
-  TEST(test_div_2);
-  */
   TEST(test_to_hex_1);
   TEST(test_to_hex_2);
+  TEST(test_div_1);
+  
+  TEST(test_div_2);
+  
   /*
   TEST(test_to_dec_1);
   TEST(test_to_dec_2);
@@ -503,6 +502,23 @@ void test_compare_2(TestObjs *) {
 void test_div_1(TestObjs *objs) {
   // Some relatively basic division tests
 
+  //test the divsion by
+  BigInt resulta = objs->zero.div_by_2();
+  check_contents(resulta, { 0UL });
+  ASSERT(!resulta.is_negative());
+
+  BigInt resultb = objs->one.div_by_2();
+  check_contents(resultb, { 0UL });
+  ASSERT(!resultb.is_negative());
+
+  BigInt resultc = objs->nine.div_by_2();
+  check_contents(resultc, { 4UL });
+  ASSERT(!resultc.is_negative());
+
+  BigInt resultd = objs->two_pow_64.div_by_2();
+  check_contents(resultd, { 0x8000000000000000UL});
+  ASSERT(!resultd.is_negative());
+  
   BigInt result1 = objs->nine / objs->three;
   check_contents(result1, { 3UL });
   ASSERT(!result1.is_negative());
@@ -518,6 +534,7 @@ void test_div_1(TestObjs *objs) {
   BigInt result4 = objs->negative_nine / objs->two;
   check_contents(result4, { 4UL });
   ASSERT(result4.is_negative());
+  
 }
 
 void test_div_2(TestObjs *) {

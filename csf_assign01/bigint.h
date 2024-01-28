@@ -184,6 +184,7 @@ public:
   //!
   //! @return the value of this BigInt object in decimal (base-10)
   std::string to_dec() const;
+  BigInt div_by_2() const;
   
 
 private:

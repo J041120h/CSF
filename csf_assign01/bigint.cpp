@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 #include <string>
 #include "bigint.h"
 
@@ -135,17 +136,31 @@ BigInt BigInt::add_magnitudes(const BigInt &lhs, const BigInt &rhs)
 
 int BigInt::compare_magnitudes(const BigInt &lhs, const BigInt &rhs)
 {
-  if (lhs.get_bit_vector().size() > rhs.get_bit_vector().size())
+  int lsize = lhs.get_bit_vector().size();
+  int rsize = rhs.get_bit_vector().size();
+  for(auto v = lhs.get_bit_vector().rbegin(); v != lhs.get_bit_vector().rend(); v++){
+    if(*v != 0){
+      break;
+    }
+    lsize--;
+  }
+  for(auto v = rhs.get_bit_vector().rbegin(); v != rhs.get_bit_vector().rend(); v++){
+    if(*v != 0){
+      break;
+    }
+    rsize--;
+  }
+  if (lsize > rsize)
   {
     return 1;
   }
-  else if (lhs.get_bit_vector().size() < rhs.get_bit_vector().size())
+  else if (lsize < rsize)
   {
     return 2;
   }
   else 
   {
-    int count = lhs.get_bit_vector().size();
+    int count = lsize;
     for (int i=count; i>=0; i--)
     {
       if (lhs.get_bits(i) == rhs.get_bits(i))
@@ -336,10 +351,30 @@ BigInt BigInt::operator<<(unsigned n) const
   return(BigInt(result));
 }
 
+BigInt BigInt::div_by_2() const
+{
+  std::vector<uint64_t>* result = new std::vector<uint64_t>();
+  uint64_t carrier = 0;
+  int size = this->magnitude->size();
+  for (int i =size; i >=0; i--)
+  {
+    uint64_t firstDigit = 0;
+    uint64_t current = this->get_bits(i);
+    firstDigit = 1UL & current;
+    current = current >> 1;
+    if (carrier == 1)
+    {
+      current |= (1UL<<63);
+    }
+    carrier = firstDigit;
+    result->insert(result->begin(),current);
+  }
+  return(BigInt(result, this->sign));
+}
+
 BigInt BigInt::operator*(const BigInt &rhs) const
 {
   // TODO: implement
-
   bool result_sign = false;
   if (this->sign != rhs.sign)
   {
@@ -365,6 +400,47 @@ BigInt BigInt::operator*(const BigInt &rhs) const
 BigInt BigInt::operator/(const BigInt &rhs) const
 {
   // TODO: implement
+  BigInt numerator = *this;
+  BigInt divisor = rhs;
+  numerator.sign_set(false);
+  divisor.sign_set(false);
+  int check =0;
+  BigInt lower(uint64_t(0)) ;
+  if(numerator.compare(divisor)<0)
+  {
+    return lower;
+  }
+
+  if (divisor.compare(lower) == 0)
+  {
+    throw std::runtime_error("Division by 0");
+  }
+
+  BigInt upper(numerator);
+  BigInt mid =(lower +upper).div_by_2();
+  BigInt product = mid*divisor;
+  BigInt one(uint64_t(1));
+  while( lower < (upper-one) )
+  {
+    check++;
+    if (numerator.compare(product)<0)
+    {
+      upper = mid;
+    }
+    else if (numerator.compare(product)==0)
+    {
+      mid.sign_set(this->sign != rhs.sign);
+      return mid;
+    }
+    else if (numerator.compare(product)>0) {
+      lower = mid;
+    }
+    mid = (lower +upper).div_by_2();
+    product = mid*divisor;
+  }
+  
+  mid.sign_set(this->sign != rhs.sign);
+  return mid;
 }
 
 int BigInt::compare(const BigInt &rhs) const
